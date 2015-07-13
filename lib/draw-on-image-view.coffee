@@ -86,7 +86,6 @@ class ImageEditorView extends ScrollView
       @doicanvas.addEventListener "mousemove", (e) => @doifind('move', e)
       @doicanvas.addEventListener "mousedown", (e) => @doifind('down', e)
       @doicanvas.addEventListener "mouseup", (e) => @doifind('up', e)
-      @doicanvas.addEventListener "mouseout", (e) => @doifind('out', e)
 
       @loaded = true
       @emitter.emit 'did-load'
@@ -150,7 +149,7 @@ class ImageEditorView extends ScrollView
             @doicontext.closePath()
             @dot_flag = false
 
-    if (res == 'up' || res == "out")
+    if (res == 'up')
         @flag = false
 
     if (res == 'move')
