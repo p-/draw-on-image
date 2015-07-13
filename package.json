@@ -1,0 +1,36 @@
+{
+  "name": "draw-on-image",
+  "main": "./lib/main",
+  "version": "0.0.0",
+  "description": "draw-on-image package for Atom",
+  "keywords": [
+    "canvas",
+    "image",
+    "picture",
+    "annotate",
+    "draw",
+    "editor",
+    "viewer"
+  ],
+  "repository": "https://github.com/p-/draw-on-image",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.0.0",
+    "fs-plus": "^2.0.0",
+    "pathwatcher": "^4.2",
+    "underscore-plus": "^1.0.0"
+  },
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
+      }
+    }
+  },
+  "devDependencies": {
+    "coffeelint": "^1.9.7"
+  }
+}
