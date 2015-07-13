@@ -12,17 +12,26 @@ class ImageEditorView extends ScrollView
   @content: ->
     @div class: 'draw-on-image', tabindex: -1, =>
       @div class: 'image-controls', outlet: 'imageControls', =>
-        @a outlet: 'whiteColorButton', class: 'image-controls-color-white', value: '#fff', =>
+        # lineWidth
+        @a outlet: 'thinLine', class: 'line-sel line-sel-thin', value: 1, =>
+          @text 'thin line'
+        @a outlet: 'mediumLine', class: 'line-sel line-sel-medium', value: 4, =>
+          @text 'medium line'
+        @a outlet: 'thickLine', class: 'line-sel line-sel-thick', value: 8, =>
+          @text 'thick line'
+
+        # Colors
+        @a outlet: 'whiteColorButton', class: 'color-sel image-controls-color-white', value: '#fff', =>
           @text 'white'
-        @a outlet: 'blackColorButton', class: 'image-controls-color-black', value: '#000', =>
+        @a outlet: 'blackColorButton', class: 'color-sel image-controls-color-black', value: '#000', =>
           @text 'black'
-        @a outlet: 'blueColorButton', class: 'image-controls-color-blue', value: '#1428fa', =>
+        @a outlet: 'blueColorButton', class: 'color-sel image-controls-color-blue', value: '#1428fa', =>
           @text 'blue'
-        @a outlet: 'yellowColorButton', class: 'image-controls-color-yellow', value: '#fafa28', =>
+        @a outlet: 'yellowColorButton', class: 'color-sel image-controls-color-yellow', value: '#fafa28', =>
           @text 'yellow'
-        @a outlet: 'greenColorButton', class: 'image-controls-color-green', value: '#64e614', =>
+        @a outlet: 'greenColorButton', class: 'color-sel image-controls-color-green', value: '#64e614', =>
           @text 'green'
-        @a outlet: 'redColorButton', class: 'image-controls-color-red', value: '#e62828', =>
+        @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
         # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
@@ -38,7 +47,7 @@ class ImageEditorView extends ScrollView
     @currY = 0
     @flag = false
     @dot_flag = false
-    @strokeColor = "black"
+    @strokeColor = '#000'
     @lineWidth = 4
 
     @emitter = new Emitter
@@ -83,8 +92,10 @@ class ImageEditorView extends ScrollView
       @emitter.emit 'did-load'
 
     if @getPane()
-      @imageControls.find('a').on 'click', (e) =>
+      @imageControls.find('.color-sel').on 'click', (e) =>
         @setDrawColor $(e.target).attr 'value'
+      @imageControls.find('.line-sel').on 'click', (e) =>
+        @setLineWidth $(e.target).attr 'value'
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
@@ -101,6 +112,10 @@ class ImageEditorView extends ScrollView
   setDrawColor: (color) ->
     return unless @loaded and @isVisible() and color
     @strokeColor = color
+
+  setLineWidth: (lineWidth) ->
+    return unless @loaded and @isVisible() and lineWidth
+    @lineWidth = lineWidth
 
   saveImage: ->
     # Save to the same format as source image
