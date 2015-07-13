@@ -94,8 +94,6 @@ class ImageEditorView extends ScrollView
         @setDrawColor $(e.target).attr 'value'
       @imageControls.find('.line-sel').on 'click', (e) =>
         @setLineWidth $(e.target).attr 'value'
-      @undoButton.on 'click', (e) =>
-        @undoLastAction()
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
