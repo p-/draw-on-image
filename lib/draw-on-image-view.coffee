@@ -34,10 +34,6 @@ class ImageEditorView extends ScrollView
         @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
 
-        # Undo
-        @a outlet: 'undoButton', class: 'undo-action', =>
-          @text 'undo'
-
         # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
         @div class: 'image-container-cell', =>
@@ -121,9 +117,6 @@ class ImageEditorView extends ScrollView
     return unless @loaded and @isVisible() and lineWidth
     @lineWidth = lineWidth
 
-  undoLastAction: ->
-    @doicontext.restore()
-
   saveImage: ->
     # Save to the same format as source image
     fileext = path.extname(@editor.getURI())
@@ -158,8 +151,6 @@ class ImageEditorView extends ScrollView
             @isDot = false
 
     if (res == 'up')
-        if @isDrawing
-          @doicontext.save()
         @isDrawing = false
 
     if (res == 'move')
