@@ -13,11 +13,11 @@ class ImageEditorView extends ScrollView
     @div class: 'draw-on-image', tabindex: -1, =>
       @div class: 'image-controls', outlet: 'imageControls', =>
         # lineWidth
-        @a outlet: 'thinLine', class: 'line-sel line-sel-thin', value: 1, =>
+        @a outlet: 'thinLine', class: 'line-sel image-controls-line-sel-thin', value: 1, =>
           @text 'thin line'
-        @a outlet: 'mediumLine', class: 'line-sel line-sel-medium', value: 4, =>
+        @a outlet: 'mediumLine', class: 'line-sel image-controls-line-sel-medium', value: 4, =>
           @text 'medium line'
-        @a outlet: 'thickLine', class: 'line-sel line-sel-thick', value: 8, =>
+        @a outlet: 'thickLine', class: 'line-sel image-controls-line-sel-thick', value: 8, =>
           @text 'thick line'
 
         # Colors
