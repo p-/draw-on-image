@@ -33,6 +33,11 @@ class ImageEditorView extends ScrollView
           @text 'green'
         @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
+
+        # Undo
+        @a outlet: 'undoButton', class: 'undo-action', =>
+          @text 'undo'
+
         # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
         @div class: 'image-container-cell', =>
@@ -45,8 +50,8 @@ class ImageEditorView extends ScrollView
     @currX = 0
     @prevY = 0
     @currY = 0
-    @flag = false
-    @dot_flag = false
+    @isDrawing = false
+    @isDot = false
     @strokeColor = '#000'
     @lineWidth = 4
 
@@ -73,9 +78,7 @@ class ImageEditorView extends ScrollView
 
     @image.load =>
       @originalHeight = @image.height()
-      console.log @originalHeight
       @originalWidth = @image.width()
-      console.log @originalWidth
 
       @doicanvas = @canvas.get(0)
       @doicanvas.width = @originalWidth
@@ -83,9 +86,9 @@ class ImageEditorView extends ScrollView
       @doicontext = @doicanvas.getContext "2d"
       @doicontext.drawImage @image.get(0), 0, 0
 
-      @doicanvas.addEventListener "mousemove", (e) => @doifind('move', e)
-      @doicanvas.addEventListener "mousedown", (e) => @doifind('down', e)
-      @doicanvas.addEventListener "mouseup", (e) => @doifind('up', e)
+      @doicanvas.addEventListener "mousemove", (e) => @drawAction('move', e)
+      @doicanvas.addEventListener "mousedown", (e) => @drawAction('down', e)
+      @doicanvas.addEventListener "mouseup", (e) => @drawAction('up', e)
 
       @loaded = true
       @emitter.emit 'did-load'
@@ -95,6 +98,8 @@ class ImageEditorView extends ScrollView
         @setDrawColor $(e.target).attr 'value'
       @imageControls.find('.line-sel').on 'click', (e) =>
         @setLineWidth $(e.target).attr 'value'
+      @undoButton.on 'click', (e) =>
+        @undoLastAction()
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
@@ -116,44 +121,49 @@ class ImageEditorView extends ScrollView
     return unless @loaded and @isVisible() and lineWidth
     @lineWidth = lineWidth
 
+  undoLastAction: ->
+    @doicontext.restore()
+
   saveImage: ->
     # Save to the same format as source image
-    fileext = path.extname(@editor.getURI());
+    fileext = path.extname(@editor.getURI())
 
     mimetype = 'image/jpeg'
     if (fileext == '.png')
       mimetype = 'image/png'
 
-    dataUrl = @doicanvas.toDataURL(mimetype, 0.9);
-    regex = /^data:.+\/(.+);base64,(.*)$/;
+    dataUrl = @doicanvas.toDataURL(mimetype, 0.9)
+    regex = /^data:.+\/(.+);base64,(.*)$/
 
-    matches = dataUrl.match(regex);
-    ext = matches[1];
-    data = matches[2];
-    buffer = new Buffer(data, 'base64');
-    fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer);
+    matches = dataUrl.match(regex)
+    ext = matches[1]
+    data = matches[2]
+    buffer = new Buffer(data, 'base64')
+    fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer)
 
-  doifind: (res, e) ->
+  drawAction: (res, e) ->
     if (res == 'down')
         @prevX = @currX
         @prevY = @currY
         @currX = e.clientX - @doicanvas.offsetLeft - $(@doicanvas).offset().left + 5
         @currY = e.clientY - @doicanvas.offsetTop - $(@doicanvas).offset().top + 25 + 5 #from the container
 
-        @flag = true
-        @dot_flag = true
-        if (@dot_flag)
+        @isDrawing = true
+        @isDot = true
+        if (@isDot)
             @doicontext.beginPath()
             @doicontext.fillStyle = @strokeColor
             @doicontext.fillRect(@currX, @currY, 2, 2)
             @doicontext.closePath()
-            @dot_flag = false
+            @isDot = false
 
     if (res == 'up')
-        @flag = false
+        if @isDrawing
+          @doicontext.save()
+        @isDrawing = false
 
     if (res == 'move')
-        if (@flag)
+        if (@isDrawing)
             @prevX = @currX
             @prevY = @currY
             @currX = e.clientX - @doicanvas.offsetLeft - $(@doicanvas).offset().left + 5
@@ -162,10 +172,10 @@ class ImageEditorView extends ScrollView
 
 
   draw: ->
-    @doicontext.beginPath();
-    @doicontext.moveTo(@prevX, @prevY);
-    @doicontext.lineTo(@currX, @currY);
-    @doicontext.strokeStyle = @strokeColor;
-    @doicontext.lineWidth = @lineWidth;
-    @doicontext.stroke();
-    @doicontext.closePath();
+    @doicontext.beginPath()
+    @doicontext.moveTo(@prevX, @prevY)
+    @doicontext.lineTo(@currX, @currY)
+    @doicontext.strokeStyle = @strokeColor
+    @doicontext.lineWidth = @lineWidth
+    @doicontext.stroke()
+    @doicontext.closePath()
