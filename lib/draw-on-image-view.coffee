@@ -33,6 +33,7 @@ class ImageEditorView extends ScrollView
           @text 'green'
         @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
+        @input outlet: 'colorSelectionButton', type: 'color', class: 'image-controls-color-selection'
 
         # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
@@ -85,15 +86,20 @@ class ImageEditorView extends ScrollView
       @doicanvas.addEventListener "mousemove", (e) => @drawAction('move', e)
       @doicanvas.addEventListener "mousedown", (e) => @drawAction('down', e)
       @doicanvas.addEventListener "mouseup", (e) => @drawAction('up', e)
+      @doicanvas.addEventListener "mouseout", (e) => @drawAction('out', e)
 
       @loaded = true
       @emitter.emit 'did-load'
+
+    @disposables.add atom.tooltips.add @colorSelectionButton[0], title: "Select custom color"
 
     if @getPane()
       @imageControls.find('.color-sel').on 'click', (e) =>
         @setDrawColor $(e.target).attr 'value'
       @imageControls.find('.line-sel').on 'click', (e) =>
         @setLineWidth $(e.target).attr 'value'
+      #@colorSelectionButton.change =>
+        #@setDrawColor @colorSelectionButton.val
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
@@ -120,14 +126,13 @@ class ImageEditorView extends ScrollView
     fileext = path.extname(@editor.getURI())
 
     mimetype = 'image/jpeg'
-    if (fileext == '.png')
+    if (fileext == '.png') #TODO ignore case
       mimetype = 'image/png'
 
     dataUrl = @doicanvas.toDataURL(mimetype, 0.9)
     regex = /^data:.+\/(.+);base64,(.*)$/
 
     matches = dataUrl.match(regex)
-    ext = matches[1]
     data = matches[2]
     buffer = new Buffer(data, 'base64')
     fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer)
@@ -148,7 +153,7 @@ class ImageEditorView extends ScrollView
             @doicontext.closePath()
             @isDot = false
 
-    if (res == 'up')
+    if (res == 'up' || res == "out")
         @isDrawing = false
 
     if (res == 'move')
