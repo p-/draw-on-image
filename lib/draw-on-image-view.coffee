@@ -121,7 +121,7 @@ class ImageEditorView extends ScrollView
     fileext = path.extname(@editor.getURI())
 
     mimetype = 'image/jpeg'
-    if (fileext == '.png') #TODO ignore case
+    if (fileext.toLowerCase() == '.png')
       mimetype = 'image/png'
 
     dataUrl = @doicanvas.toDataURL(mimetype, 0.9)
@@ -132,12 +132,12 @@ class ImageEditorView extends ScrollView
     buffer = new Buffer(data, 'base64')
     fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer)
 
-  drawAction: (res, e) ->
-    if (res == 'down')
+  drawAction: (action, e) ->
+    if (action == 'down')
         @prevX = @currX
         @prevY = @currY
-        @currX = e.clientX - @doicanvas.offsetLeft - $(@doicanvas).offset().left + 5
-        @currY = e.clientY - @doicanvas.offsetTop - $(@doicanvas).offset().top + 25 + 5 #from the container
+        @currX = @calcX(e.clientX)
+        @currY = @calcY(e.clientY)
 
         @isDrawing = true
         @isDot = true
@@ -148,17 +148,22 @@ class ImageEditorView extends ScrollView
             @doicontext.closePath()
             @isDot = false
 
-    if (res == 'up' || res == "out")
+    if (action == 'up' || action == "out")
         @isDrawing = false
 
-    if (res == 'move')
+    if (action == 'move')
         if (@isDrawing)
             @prevX = @currX
             @prevY = @currY
-            @currX = e.clientX - @doicanvas.offsetLeft - $(@doicanvas).offset().left + 5
-            @currY = e.clientY - @doicanvas.offsetTop - $(@doicanvas).offset().top + 25 + 5 #from the container
+            @currX = @calcX(e.clientX)
+            @currY = @calcY(e.clientY)
             @draw()
 
+  calcX: (x) ->
+    return x - @doicanvas.offsetLeft - $(@doicanvas).offset().left + 5;
+
+  calcY: (y) ->
+    return y - @doicanvas.offsetTop - $(@doicanvas).offset().top + 25 + 5 #from the container
 
   draw: ->
     @doicontext.beginPath()
