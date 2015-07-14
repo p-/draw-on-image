@@ -33,7 +33,6 @@ class ImageEditorView extends ScrollView
           @text 'green'
         @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
-        @input outlet: 'colorSelectionButton', type: 'color', class: 'image-controls-color-selection'
 
         # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
@@ -91,15 +90,11 @@ class ImageEditorView extends ScrollView
       @loaded = true
       @emitter.emit 'did-load'
 
-    @disposables.add atom.tooltips.add @colorSelectionButton[0], title: "Select custom color"
-
     if @getPane()
       @imageControls.find('.color-sel').on 'click', (e) =>
         @setDrawColor $(e.target).attr 'value'
       @imageControls.find('.line-sel').on 'click', (e) =>
         @setLineWidth $(e.target).attr 'value'
-      #@colorSelectionButton.change =>
-        #@setDrawColor @colorSelectionButton.val
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
