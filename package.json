@@ -2,7 +2,7 @@
   "name": "draw-on-image",
   "main": "./lib/main",
   "version": "0.0.0",
-  "description": "draw-on-image package for Atom",
+  "description": "Draw on your images and screenshots! (Experimental)",
   "keywords": [
     "canvas",
     "image",
