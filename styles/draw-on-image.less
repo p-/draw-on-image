@@ -36,6 +36,13 @@
       }
     }
 
+    &-tool-sel-pen {
+      background: url(atom://draw-on-image/images/tool-pen.png);
+    }
+    &-tool-sel-rect {
+      background: url(atom://draw-on-image/images/tool-rect.png);
+    }
+
     &-line-sel-thin {
       background: url(atom://draw-on-image/images/thin-line.png);
     }
@@ -82,5 +89,17 @@
 
   .image-container-cell {
     display: table-cell;
+    position: relative;
+  }
+
+  .canvas {
+    z-index: 0;
+  }
+
+  .tmp-canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
   }
 }
