@@ -6,6 +6,11 @@ Experimental Hack (my first CoffeeScript project) using only Html5 technologies 
 
 ![draw-on-image](https://raw.githubusercontent.com/p-/draw-on-image/master/doc/draw-on-image.gif)
 
+## Installing
+
+Use the Atom package manager, which can be found in the Settings view or
+run `apm install draw-on-image` from the command line.
+
 ## Known issues
  * Saving is experimental (right click)
- * No undo button (just don't make a mistake :wink:)
+ * Undo only available via context menu

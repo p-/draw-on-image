@@ -2,4 +2,5 @@
   '.draw-on-image': [
     {label: 'Reload Image', command: 'draw-on-image:reload'},
     {label: 'Save Image', command: 'draw-on-image:save'}
+    {label: 'Undo last change', command: 'draw-on-image:undo'}
   ]

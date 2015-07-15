@@ -79,6 +79,9 @@ class ImageEditorView extends ScrollView
     @disposables.add atom.commands.add @element,
       'draw-on-image:save': => @saveImage()
 
+    @disposables.add atom.commands.add @element,
+      'draw-on-image:undo': => @undoLastChange()
+
     #atom.commands.add 'atom-text-editor', 'core:save',, (e) ->
       #e.preventDefault()
       #e.stopPropagation()
@@ -110,6 +113,10 @@ class ImageEditorView extends ScrollView
     if @getPane()
       @disposables.add atom.tooltips.add @pen[0], title: "Draw with pen"
       @disposables.add atom.tooltips.add @rect[0], title: "Draw rectangle"
+
+      @disposables.add atom.tooltips.add @thinLine[0], title: "Thin"
+      @disposables.add atom.tooltips.add @mediumLine[0], title: "Medium"
+      @disposables.add atom.tooltips.add @thickLine[0], title: "Thick"
 
       @imageControls.find('.tool-sel').on 'click', (e) =>
         @setTool $(e.target).attr 'value'
@@ -143,6 +150,7 @@ class ImageEditorView extends ScrollView
     @strokeColor = color
 
   saveImage: ->
+    @commitChanges()
     # Save to the same format as source image
     fileext = path.extname(@editor.getURI())
 
@@ -158,13 +166,23 @@ class ImageEditorView extends ScrollView
     buffer = new Buffer(data, 'base64')
     fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer)
 
+  commitChanges: ->
+    @doicontext.drawImage(@tmpcanvas, 0, 0)
+    @undoLastChange()
+
+  undoLastChange: ->
+    @tmpcontext.clearRect(0, 0, @tmpcanvas.width, @tmpcanvas.height)
+
   drawDispatcher: (action, e) ->
+    if e.which == 3 # filter out right-clicks
+      return
     switch @tool
       when 'pen' then @drawPen(action, e)
       when 'rect' then @drawRect(action, e)
 
   drawPen: (action, e) ->
     if (action == 'down')
+        @commitChanges()
         @prevX = @currX
         @prevY = @currY
         @currX = @calcX(e.clientX)
@@ -175,7 +193,7 @@ class ImageEditorView extends ScrollView
         if (@isDot)
             @tmpcontext.beginPath()
             @tmpcontext.fillStyle = @strokeColor
-            @tmpcontext.fillRect(@currX, @currY, 2, 2)
+            @tmpcontext.fillRect(@currX, @currY, @lineWidth, @lineWidth)
             @tmpcontext.closePath()
             @isDot = false
 
@@ -183,7 +201,6 @@ class ImageEditorView extends ScrollView
         if !@isDrawing
           return
         @isDrawing = false
-        @commitChanges()
 
     if (action == 'move')
         if (@isDrawing)
@@ -211,12 +228,9 @@ class ImageEditorView extends ScrollView
     @tmpcontext.strokeStyle = @strokeColor
     @tmpcontext.lineWidth = @lineWidth
 
-  commitChanges: ->
-    @doicontext.drawImage(@tmpcanvas, 0, 0)
-    @tmpcontext.clearRect(0, 0, @tmpcanvas.width, @tmpcanvas.height)
-
   drawRect: (action, e) ->
     if (action == 'down')
+        @commitChanges()
         @updateCanvasSettings()
         @currX = @calcX(e.clientX)
         @currY = @calcY(e.clientY)
@@ -229,7 +243,6 @@ class ImageEditorView extends ScrollView
         if !@isDrawing
           return
         @isDrawing = false
-        @commitChanges()
 
     if (action == 'move')
         if !@isDrawing
