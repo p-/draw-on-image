@@ -5,14 +5,10 @@
   "description": "Draw on your images and screenshots! (Experimental)",
   "keywords": [
     "canvas",
-    "image",
     "picture",
     "annotate",
     "draw",
-    "paint",
-    "sketch",
-    "editor",
-    "viewer"
+    "paint"
   ],
   "repository": "https://github.com/p-/draw-on-image",
   "license": "MIT",

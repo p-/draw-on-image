@@ -2,7 +2,7 @@
 
 Draw on your images and screenshots! (Experimental)
 
-Experimental Hack (my first CoffeeScript project) using only Html5 technologies like the canvas element.
+Experimental Hack (my first CoffeeScript project) based on [image-view](https://atom.io/packages/image-view) using only Html5 elements like the canvas and the input color element.
 
 ![draw-on-image](https://raw.githubusercontent.com/p-/draw-on-image/master/doc/draw-on-image.gif)
 
