@@ -24,8 +24,6 @@ class ImageEditorView extends ScrollView
           @text 'thin line'
         @a outlet: 'mediumLine', class: 'line-sel image-controls-line-sel-medium', value: 4, =>
           @text 'medium line'
-        @a outlet: 'thickLine', class: 'line-sel image-controls-line-sel-thick', value: 8, =>
-          @text 'thick line'
 
         # Colors
         @input outlet: 'colorSelectionButton', type: 'color', class: 'image-controls-color-selection'
@@ -116,7 +114,6 @@ class ImageEditorView extends ScrollView
 
       @disposables.add atom.tooltips.add @thinLine[0], title: "Thin"
       @disposables.add atom.tooltips.add @mediumLine[0], title: "Medium"
-      @disposables.add atom.tooltips.add @thickLine[0], title: "Thick"
       @disposables.add atom.tooltips.add @colorSelectionButton[0], title: "Select custom color"
 
       @setDrawColor(@strokeColor)
