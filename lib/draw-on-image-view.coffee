@@ -28,9 +28,10 @@ class ImageEditorView extends ScrollView
           @text 'thick line'
 
         # Colors
-        @a outlet: 'whiteColorButton', class: 'color-sel image-controls-color-white', value: '#fff', =>
+        @input outlet: 'colorSelectionButton', type: 'color', class: 'image-controls-color-selection'
+        @a outlet: 'whiteColorButton', class: 'color-sel image-controls-color-white', value: '#ffffff', =>
           @text 'white'
-        @a outlet: 'blackColorButton', class: 'color-sel image-controls-color-black', value: '#000', =>
+        @a outlet: 'blackColorButton', class: 'color-sel image-controls-color-black', value: '#000000', =>
           @text 'black'
         @a outlet: 'blueColorButton', class: 'color-sel image-controls-color-blue', value: '#1428fa', =>
           @text 'blue'
@@ -41,7 +42,6 @@ class ImageEditorView extends ScrollView
         @a outlet: 'redColorButton', class: 'color-sel image-controls-color-red', value: '#e62828', =>
           @text 'red'
 
-        # 6 Colors, 3 Stroke Types, 3 Shape Types (Rect, Line, Free)
       @div class: 'image-container', =>
         @div class: 'image-container-cell', =>
           @canvas outlet: 'canvas', id: 'doi-canvas', class: 'canvas'
@@ -61,7 +61,7 @@ class ImageEditorView extends ScrollView
 
     @tool = 'pen'
     @lineWidth = 4
-    @strokeColor = '#000'
+    @strokeColor = '#64e614'
 
     @emitter = new Emitter
 
@@ -117,13 +117,30 @@ class ImageEditorView extends ScrollView
       @disposables.add atom.tooltips.add @thinLine[0], title: "Thin"
       @disposables.add atom.tooltips.add @mediumLine[0], title: "Medium"
       @disposables.add atom.tooltips.add @thickLine[0], title: "Thick"
+      @disposables.add atom.tooltips.add @colorSelectionButton[0], title: "Select custom color"
+
+      @setDrawColor(@strokeColor)
+      @initToolSelections()
 
       @imageControls.find('.tool-sel').on 'click', (e) =>
+        $(".tool-sel").each (index, element) =>
+          $(element).removeClass('selected')
+        $(e.target).addClass('selected')
         @setTool $(e.target).attr 'value'
+
       @imageControls.find('.line-sel').on 'click', (e) =>
+        $(".line-sel").each (index, element) =>
+          $(element).removeClass('selected')
+        $(e.target).addClass('selected')
         @setLineWidth $(e.target).attr 'value'
+
       @imageControls.find('.color-sel').on 'click', (e) =>
+        $(".color-sel").each (index, element) =>
+          $(element).removeClass('selected')
+        $(e.target).addClass('selected')
         @setDrawColor $(e.target).attr 'value'
+      @colorSelectionButton.change =>
+        @setDrawColor @colorSelectionButton[0].value
 
   onDidLoad: (callback) ->
     @emitter.on 'did-load', callback
@@ -137,17 +154,26 @@ class ImageEditorView extends ScrollView
   getPane: ->
     @parents('.pane')[0]
 
+  initToolSelections: ->
+    # TODO: make generic and/or restore from settings
+    $(".image-controls-tool-sel-pen").addClass('selected')
+    $(".image-controls-line-sel-medium").addClass('selected')
+    $(".image-controls-color-green").addClass('selected')
+
+
   setTool: (tool) ->
-    return unless @loaded and @isVisible() and tool
+    return unless @isVisible() and tool
     @tool = tool
 
   setLineWidth: (lineWidth) ->
-    return unless @loaded and @isVisible() and lineWidth
+    return unless @isVisible() and lineWidth
     @lineWidth = lineWidth
 
   setDrawColor: (color) ->
-    return unless @loaded and @isVisible() and color
+    return unless @isVisible() and color
+
     @strokeColor = color
+    @colorSelectionButton[0].value = color
 
   saveImage: ->
     @commitChanges()
