@@ -1,4 +1,5 @@
 {View, $} = require 'atom-space-pen-views'
+fs = require 'fs-plus'
 ImageEditorView = require '../lib/draw-on-image-view'
 ImageEditor = require '../lib/draw-on-image'
 
@@ -8,6 +9,7 @@ describe "ImageEditorView", ->
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
     filePath = atom.project.getDirectories()[0].resolve('binary-file.png')
+    #TODO: delete created images in tear up or down
     editor = new ImageEditor(filePath)
     view = new ImageEditorView(editor)
     view.height(100)
@@ -41,6 +43,19 @@ describe "ImageEditorView", ->
       spyOn(view, 'updateImageURI')
       atom.commands.dispatch view.element, 'draw-on-image:reload'
       expect(view.updateImageURI).toHaveBeenCalled()
+
+  describe "save", ->
+    it "saves the image", ->
+      filePathSaved = atom.project.getDirectories()[0].resolve('binary-file_saved.png')
+      view.saveImage()
+      expect(fs.existsSync(filePathSaved)).toBe(true);
+
+  describe "save as", ->
+    it "saves the image with a specific filename", ->
+      fileName = 'binary-file_test' + Math.random() + '.png'
+      filePathSaved = atom.project.getDirectories()[0].resolve(fileName)
+      view.saveImageAs(filePathSaved)
+      expect(fs.existsSync(filePathSaved)).toBe(true);
 
   describe "ImageEditorStatusView", ->
     [imageSizeStatus] = []

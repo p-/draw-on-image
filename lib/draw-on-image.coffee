@@ -1,5 +1,6 @@
 # Code hacked together for POC
 
+{$} = require 'atom-space-pen-views'
 path = require 'path'
 fs = require 'fs-plus'
 {File} = require 'pathwatcher'
@@ -19,6 +20,39 @@ class ImageEditor
   constructor: (filePath) ->
     @file = new File(filePath)
     @subscriptions = new CompositeDisposable()
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'core:undo', (e) =>
+      editorView = @handleCoreEvent(e)
+      editorView.undoLastChange() if editorView
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'core:save', (e) =>
+      editorView = @handleCoreEvent(e)
+      editorView.saveImage() if editorView
+
+    @subscriptions.add atom.commands.add 'atom-workspace', 'core:save-as', (e) =>
+      editorView = @handleCoreEvent(e)
+      @saveContentAs(editorView) if editorView
+
+  handleCoreEvent: (event) ->
+    editor = atom.workspace.getActivePaneItem()
+    if @isEqual(editor)
+      event.preventDefault()
+      event.stopPropagation()
+      editorView = $(atom.views.getView(editor)).view()
+      return editorView if editorView.loaded
+
+  saveContentAs: (editorView) ->
+    saveOptions = {}
+    saveOptions.defaultPath ?= editorView.proposeSavePath()
+    newItemPath = atom.showSaveDialogSync(saveOptions)
+    if newItemPath
+      try
+        editorView.saveImageAs(newItemPath)
+      catch error
+        @addWarningWithPath(newItemPath)
+
+  addWarningWithPath: (filePath) ->
+    atom.notifications.addWarning('Unable to save image to : "' + filePath + '"')
 
   serialize: ->
     {filePath: @getPath(), deserializer: @constructor.name}

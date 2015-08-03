@@ -74,17 +74,6 @@ class ImageEditorView extends ScrollView
     @disposables.add atom.commands.add @element,
       'draw-on-image:reload': => @updateImageURI()
 
-    @disposables.add atom.commands.add @element,
-      'draw-on-image:save': => @saveImage()
-
-    @disposables.add atom.commands.add @element,
-      'draw-on-image:undo': => @undoLastChange()
-
-    #atom.commands.add 'atom-text-editor', 'core:save',, (e) ->
-      #e.preventDefault()
-      #e.stopPropagation()
-      #saveImage()
-
     @image.load =>
       @originalHeight = @image.height()
       @originalWidth = @image.width()
@@ -173,21 +162,31 @@ class ImageEditorView extends ScrollView
     @colorSelectionButton[0].value = color
 
   saveImage: ->
+    savePath = @proposeSavePath();
+    @saveImageAs(savePath)
+
+  proposeSavePath: ->
+    parsedPath = path.parse(@editor.getURI())
+    return parsedPath.dir + path.sep + parsedPath.name + "_saved" + parsedPath.ext
+
+  saveImageAs: (savePath) ->
     @commitChanges()
-    # Save to the same format as source image
-    fileext = path.extname(@editor.getURI())
-
-    mimetype = 'image/jpeg'
-    if (fileext.toLowerCase() == '.png')
-      mimetype = 'image/png'
-
+    mimetype = @getMimetype(savePath)
     dataUrl = @doicanvas.toDataURL(mimetype, 0.9)
     regex = /^data:.+\/(.+);base64,(.*)$/
 
     matches = dataUrl.match(regex)
     data = matches[2]
     buffer = new Buffer(data, 'base64')
-    fs.writeFileSync(@editor.getURI() + "_saved" + fileext, buffer)
+    fs.writeFileSync(savePath, buffer)
+
+  getMimetype: (savePath) ->
+    # Save to the same format as source image
+    fileext = path.extname(savePath)
+    mimetype = 'image/jpeg'
+    if (fileext.toLowerCase() == '.png')
+      mimetype = 'image/png'
+    return mimetype
 
   commitChanges: ->
     @doicontext.drawImage(@tmpcanvas, 0, 0)
